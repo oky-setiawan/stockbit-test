@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-const logActionQuery = `INSERT INTO log (action, method, request, response) VALUES (:action,:method,:request,:response)`
+const logActionQuery = `INSERT INTO log (action, method, request, response) VALUES (?, ?, ?, ?)`
 
 // LogAction will log any action and store in database
 func (m *logRepository) LogAction(ctx context.Context, request *entity.LogActionRequest) (err error) {
@@ -37,6 +37,12 @@ func (m *logRepository) LogAction(ctx context.Context, request *entity.LogAction
 
 	wg.Wait()
 
-	_, err = m.db.GetMaster().NamedExecContext(ctx, logActionQuery, request)
+	_, err = m.db.GetMaster().ExecContext(ctx, logActionQuery, request.Action, request.Method, request.RequestJSON, request.ResponseJSON)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err.Error(),
+		}).Errorln("[logRepository] failed LogAction")
+	}
+
 	return err
 }

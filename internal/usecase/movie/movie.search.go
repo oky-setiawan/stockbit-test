@@ -27,7 +27,7 @@ func (u *movieUsecase) SearchMovie(ctx context.Context, request *entity.SearchMo
 		Action:   "SearchMovie",
 		Method:   constants.LogMethodAPIRequest,
 		Request:  request,
-		Response: response,
+		Response: getMovieResp,
 	}
 
 	go u.logRepo.LogAction(context.Background(), logRequest)
